@@ -7,11 +7,13 @@ import torch.nn as nn
 from .utils import _gather_feat, _tranpose_and_gather_feat
 
 def _nms(heat, kernel=3):
-    pad = (kernel - 1) // 2
-
+    pad = (kernel - 1) // 2 # 默认为1
+    # 再做一个最大池化？hmax and heat shape is same [32,20,96,96]
     hmax = nn.functional.max_pool2d(
         heat, (kernel, kernel), stride=1, padding=pad)
+    # 如果他们池化后的值还是和原来一样，那么我们保持，也就是说3*3这个各自里面预测到的值我们可以通过池化的方式看看是否重复预测～
     keep = (hmax == heat).float()
+    
     return heat * keep
 
 def _left_aggregate(heat):
@@ -101,17 +103,20 @@ def _topk_channel(scores, K=40):
       return topk_scores, topk_inds, topk_ys, topk_xs
 
 def _topk(scores, K=40):
+    # 热图就代表了置信度
     batch, cat, height, width = scores.size()
-      
+    # 先找到每个类中分数前100类预测值 topk_scores [32,20,100]  topk_inds [32,20,100]
     topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), K)
-
+    
+    # 下面三步应该是从 index 里面还原到x y的index
     topk_inds = topk_inds % (height * width)
-    topk_ys   = (topk_inds / width).int().float()
+    topk_ys   = (topk_inds / width).int().float() 
     topk_xs   = (topk_inds % width).int().float()
-      
+    # 再从前面每个类的topk中获得所有的前topk值 topk_score [32,100] topk_ind [32,100]
     topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), K)
-    topk_clses = (topk_ind / K).int()
-    topk_inds = _gather_feat(
+    topk_clses = (topk_ind / K).int() # 计算index对应的类别
+    # 用总体的topk索引出每个类的topk,最终只保留总体的topk,但是坐标索引是对应整个heatmap的~ topk_inds.shape [32,100]
+    topk_inds = _gather_feat( 
         topk_inds.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_ys = _gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, K)
     topk_xs = _gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, K)
@@ -462,6 +467,7 @@ def ddd_decode(heat, rot, depth, dim, wh=None, reg=None, K=40):
     return detections
 
 def ctdet_decode(heat, wh, reg=None, cat_spec_wh=False, K=100):
+    """ 目标检测输出解析函数 """
     batch, cat, height, width = heat.size()
 
     # heat = torch.sigmoid(heat)

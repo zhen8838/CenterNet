@@ -16,6 +16,7 @@ import math
 
 class CTDetDataset(data.Dataset):
   def _coco_box_to_bbox(self, box):
+    """ bbox应该是是左上右上 做下右下 """
     bbox = np.array([box[0], box[1], box[0] + box[2], box[1] + box[3]],
                     dtype=np.float32)
     return bbox

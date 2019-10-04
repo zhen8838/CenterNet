@@ -141,11 +141,13 @@ class RegL1Loss(nn.Module):
     super(RegL1Loss, self).__init__()
   
   def forward(self, output, mask, ind, target):
-    pred = _tranpose_and_gather_feat(output, ind)
-    mask = mask.unsqueeze(2).expand_as(pred).float()
+    """ 这个就是计算offset和wh的关键loss """
+    pred = _tranpose_and_gather_feat(output, ind) # 生成新的output为pred
+    mask = mask.unsqueeze(2).expand_as(pred).float() # 将mask转float
     # loss = F.l1_loss(pred * mask, target * mask, reduction='elementwise_mean')
-    loss = F.l1_loss(pred * mask, target * mask, size_average=False)
-    loss = loss / (mask.sum() + 1e-4)
+    # 计算l1 loss
+    loss = F.l1_loss(pred * mask, target * mask, size_average=False) # loss不被平均
+    loss = loss / (mask.sum() + 1e-4) # 根据有效值的个数手动平均loss
     return loss
 
 class NormRegL1Loss(nn.Module):

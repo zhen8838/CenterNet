@@ -6,13 +6,16 @@ import torch
 import torch.nn as nn
 
 def _sigmoid(x):
+  # sigmoid 的时候限制数值避免溢出
   y = torch.clamp(x.sigmoid_(), min=1e-4, max=1-1e-4)
   return y
 
 def _gather_feat(feat, ind, mask=None):
-    dim  = feat.size(2)
-    ind  = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
-    feat = feat.gather(1, ind)
+    """ 生成新特征 """
+    dim  = feat.size(2) # 得到最后一层的特征个数为dim
+    # ind 应该是 [batch,h*w]的，这里tile第三维 dim 。
+    ind  = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) 
+    feat = feat.gather(1, ind) # 根据对应的index生成新的值。
     if mask is not None:
         mask = mask.unsqueeze(2).expand_as(feat)
         feat = feat[mask]
@@ -20,9 +23,10 @@ def _gather_feat(feat, ind, mask=None):
     return feat
 
 def _tranpose_and_gather_feat(feat, ind):
-    feat = feat.permute(0, 2, 3, 1).contiguous()
-    feat = feat.view(feat.size(0), -1, feat.size(3))
-    feat = _gather_feat(feat, ind)
+    """ 对特征进行转置和生成 """
+    feat = feat.permute(0, 2, 3, 1).contiguous() # 估计是把bchw变成[b,h,w,c]，contiguous就是复制一个copy出来。
+    feat = feat.view(feat.size(0), -1, feat.size(3)) # resize到 [b,h*w,c]
+    feat = _gather_feat(feat, ind) # 根据index找到生成新特征
     return feat
 
 def flip_tensor(x):
