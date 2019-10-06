@@ -63,6 +63,34 @@ This repo is used for my own study and experiment. Refer to the [original projec
 
     ```sh
     python main.py ctdet --exp_id pascal_mobile_384 --arch mobile_1 --dataset pascal --head_conv 256 --num_epochs 70 --lr_step 45,60
+    python test.py ctdet --exp_id pascal_mobile_384 --arch mobile_1 --dataset pascal --resume
+    ```
+    
+    Evaluation Result, I don't think Centernet is suitable for small models. :
+    ```
+    Evaluating detections
+    VOC07 metric? Yes
+    AP for aeroplane = 0.0000
+    AP for bicycle = 0.0000
+    AP for bird = 0.0000
+    AP for boat = 0.0000
+    AP for bottle = 0.0000
+    AP for bus = 0.0000
+    AP for car = 0.0000
+    AP for cat = 0.0000
+    AP for chair = 0.0000
+    AP for cow = 0.0000
+    AP for diningtable = 0.0000
+    AP for dog = 0.0000
+    AP for horse = 0.0000
+    AP for motorbike = 0.0000
+    AP for person = 0.0000
+    AP for pottedplant = 0.0000
+    AP for sheep = 0.0000
+    AP for sofa = 0.0000
+    AP for train = 0.0000
+    AP for tvmonitor = 0.0000
+    Mean AP = 0.0000
     ```
     
 ## inference
