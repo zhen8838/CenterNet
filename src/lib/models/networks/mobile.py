@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
-from .resnet_dcn import fill_up_weights, fill_fc_weights, BN_MOMENTUM
+from .resnet_dcn import fill_up_weights, fill_fc_weights, BN_MOMENTUM, DCN
 import torch.utils.model_zoo as model_zoo
 
 
@@ -278,20 +278,20 @@ class MobileNetV3_Small(nn.Module):
           self._get_deconv_cfg(num_kernels[i], i)
 
       planes = num_filters[i]
-      # fc = DCN(self.inplanes,
-      #          planes,
-      #          kernel_size=(3, 3),
-      #          stride=1,
-      #          padding=1,
-      #          dilation=1,
-      #          deformable_groups=1)
-      fc = nn.Conv2d(self.inplanes,
-                     planes,
-                     kernel_size=3,
-                     stride=1,
-                     padding=1,
-                     dilation=1,
-                     bias=False)
+      fc = DCN(self.inplanes,
+               planes,
+               kernel_size=(3, 3),
+               stride=1,
+               padding=1,
+               dilation=1,
+               deformable_groups=1)
+      # fc = nn.Conv2d(self.inplanes,
+      #                planes,
+      #                kernel_size=3,
+      #                stride=1,
+      #                padding=1,
+      #                dilation=1,
+      #                bias=False)
       fill_fc_weights(fc)
       up = nn.ConvTranspose2d(in_channels=planes,
                               out_channels=planes,

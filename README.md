@@ -59,7 +59,7 @@ This repo is used for my own study and experiment. Refer to the [original projec
 
 2.  training with `mobilenetv2_ctdet` 
 
-    **NOTE:** This model is experimental. The `deconv layer` part of the model refers to `resdcn18_384`, but it does not use `DCNv2`, but ordinary convolution. I want to use this model to validate and migrate to Tensorflow
+    **NOTE:** This model is experimental. The `deconv layer` part of the model refers to `resdcn18_384`.
 
     ```sh
     python main.py ctdet --exp_id pascal_mobile_384 --arch mobile_1 --dataset pascal --head_conv 256 --num_epochs 70 --lr_step 45,60
@@ -95,9 +95,12 @@ This repo is used for my own study and experiment. Refer to the [original projec
     
 ## inference
 
-1.  inference with `mobilenetv2_ctdet`
+1.  inference with `mobilenetv2_ctdet` , So bad...
 
     ```sh
     python demo.py ctdet --exp_id pascal_mobile_384 --arch mobile_1 --dataset pascal --head_conv 256 --demo ../images --load_model ../exp/ctdet/pascal_mobile_384/model_best.pth
     ```
     
+    ![](readme/res1.png)
+    ![](readme/res2.png)
+    ![](readme/res3.png)
